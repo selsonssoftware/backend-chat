@@ -60,10 +60,17 @@ export const checkAuth = async (req, res) => {
 };
 
 //logout any existing session
-    export const logout = (req, res) => {
+   export const logout = (req, res) => {
   try {
-     
-    res.status(200).json({ message: "Logged out successfully" });
+    res.cookie("jwt", "", {
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      secure: process.env.NODE_ENV === "production"
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+
   } catch (error) {
     console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Internal server error" });

@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 
 // routes
 import authroutes from "./route/auth.route.js";
+import awsuploads_example from "./route/aws.route.js";
 
 
 // models
@@ -24,12 +25,16 @@ db2.authenticate()
   .then(() => console.log("✅ Sequelize Connected Successfully!"))
   .catch(err => console.error("❌ Sequelize connection failed:", err));
 
-  app.use('/auth', authroutes);
 
+  //routes from here
+app.use('/auth', authroutes);
+// app.post('/uploads',awsuploads_example);
 
 app.get('/user', async (req, res) => {
     const users = await User.findAll();
     res.json(users);
 });
+
+
 
    app.listen(3000,  () => console.log("🚀 Server is running on port 3000"));
