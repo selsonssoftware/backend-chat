@@ -1,0 +1,37 @@
+# Dependencies
+/node_modules
+/jspm_packages/
+
+# Production build artifacts
+/build
+/dist
+/out
+.next/ # For Next.js projects
+.nuxt/ # For Nuxt.js projects
+
+# Temporary files, logs, and caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+.eslintcache
+.cache
+.parcel-cache
+.docusaurus
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor and OS-specific files
+.idea/             # JetBrains IDEs
+.vscode/           # VS Code (optional, but good for shared settings)
+*.iml              # IntelliJ project files
+.DS_Store          # macOS
+Thumbs.db          # Windows
+
+# Output of 'npm pack'
+*.tgz
