@@ -2,7 +2,7 @@ import { Op, Sequelize } from "sequelize";
 import { Chat, ChatUser } from "../model/index.model.js";
 import User from "../model/User.js";
 import ChatMessage from "../model/chatMessage.js";
-import {getReceiverSocketId} from "../lib/socket.js";
+import {getReceiverSocketId,getIo} from "../lib/socket.js";
 export const openChat = async (req, res) => {
   try {
     const currentUser = req.user.user_id;
@@ -69,6 +69,19 @@ export const openChat = async (req, res) => {
       message_text: message
     });
 
+      // 3️⃣ send message in real-time to receiver if online
+    const receiverSocketId = getReceiverSocketId(receiver_id);
+    const io = getIo();
+
+    if (receiverSocketId && io) {
+      io.to(receiverSocketId).emit("newMessage", {
+        chat_id: chat.id,
+        sender_id: sender_id,
+        message_text: message,
+        created_at: chatMessage.created_at,
+      });
+    }
+
     return res.status(201).json({
       success: true,
       chat_id: chat.id,
@@ -90,7 +103,7 @@ const { sender_id, receiver_id } = req.query;
     if (!receiver_id ) {
       return res.status(400).json({ message: "receiver_id required" });
     }
-
+// 2️⃣ insert message
     const messages = await ChatMessage.findAll({
        where:{
         user_id: { [Op.in]: [sender_id, receiver_id] }
@@ -98,6 +111,9 @@ const { sender_id, receiver_id } = req.query;
         attributes: ["user_id", "message_text", "created_at"],
        order: [['created_at', 'ASC']]
     });
+
+    
+
     return res.status(200).json({
       success: true,
       messages 
