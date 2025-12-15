@@ -9,12 +9,19 @@ export const login = async (req, res) => {
   
 
   try {
-    const email=req.body.email;
-    if(!email){
-        return res.status(400).json({ message: "Email is required" });
+
+     const body = req.body || {}; // ⚡ fallback to empty object
+    const email = body.email;
+    const password = body.password;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
     }
-    const password=req.body.password;
-    console.log("📌 Login route hit", req.body); // ← to test route
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+    //console.log("📌 Login route hit", req.body); // ← to test route
     
 
     const user = await User.findOne({ where: { email } });

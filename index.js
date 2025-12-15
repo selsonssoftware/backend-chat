@@ -8,17 +8,20 @@ import { initSocket } from "./lib/socket.js";
 
 // routes
 import authroutes from "./route/auth.route.js";
-import userroutes from "./route/user.route.js";
+import userroutes from "./route/user.route.js"; 
 import chatRoutes from "./route/chat.route.js";
 
 
-dotenv.config();
+dotenv.config({ debug: false});
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+  
 // middleware
 app.use(express.json());
+// / ✅ parse urlencoded bodies (optional)
+app.use(express.urlencoded({ extended: true }));
+
 app.use(cookieParser());
 
 app.use(cors({
