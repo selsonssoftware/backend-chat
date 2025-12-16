@@ -1,5 +1,5 @@
 import express from "express";
-import { openChat,getMessages } from "../controllers/openChat.js";
+import { openChat,getMessages,createGroupChat,getGroupMessages,sendGroupMessage } from "../controllers/openChat.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
@@ -8,5 +8,8 @@ const router = express.Router();
 // router.get("/:user_id", protectRoute, openChat);
 router.post("/send", openChat);
 router.get("/getMessages", protectRoute, getMessages);
+router.post("/sendGroup", protectRoute, createGroupChat);
+router.get("/getGroupMessages", protectRoute, getGroupMessages);
+router.post("/sendGroupMessage", protectRoute, sendGroupMessage);
 
 export default router;

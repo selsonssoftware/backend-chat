@@ -6,7 +6,8 @@ const ChatUser = db.define("chat_user", {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   chat_id: DataTypes.INTEGER,
   user_id: DataTypes.STRING,
-  role: DataTypes.STRING
+  role: DataTypes.STRING,
+      group_admin: DataTypes.BOOLEAN
 }, { 
     tableName: "sharing_chat_user", 
     timestamps: true,

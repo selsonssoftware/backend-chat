@@ -3,6 +3,8 @@ import { Chat, ChatUser } from "../model/index.model.js";
 import User from "../model/User.js";
 import ChatMessage from "../model/chatMessage.js";
 import {getReceiverSocketId,getIo} from "../lib/socket.js";
+
+//SINGLE CHAT
 export const openChat = async (req, res) => {
   try {
     console.log("REQ BODY:", req.body);
@@ -86,14 +88,12 @@ if (senderSocketId) {
   }
 };
 
-
-
 export const getMessages = async (req, res) => {
   try{
     
 const { sender_id, receiver_id } = req.query;
 
- 
+    
     if (!receiver_id ) {
       return res.status(400).json({ message: "receiver_id required" });
     }
@@ -101,6 +101,7 @@ const { sender_id, receiver_id } = req.query;
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
     const chat_id=await ChatUser.findAll({
       attributes: ["chat_id"],
       where: {
@@ -132,6 +133,141 @@ const { sender_id, receiver_id } = req.query;
     res.status(500).json({ message: "Internal server error" });
   }
 };
+//SINGLE CHAT END 
+
+//GROUP CHAT START
+//Create Group Chat
+export const createGroupChat = async (req, res) => {
+  
+  try{
+    const { group_name, member_ids,auth_user_id,description,group_img } = req.body;
+
+    // return res.status(200).json(  req.body );
+
+    if (!group_name || !member_ids || !Array.isArray(member_ids) || member_ids.length < 2) {
+      return res.status(400).json({
+        message: "group_name and at least two member_ids are required",
+      });
+    }
+
+    const user = await User.findOne({ where: { user_id: auth_user_id } });
+    if (!user) {
+      return res.status(404).json({ message: "Auth user not found" });
+    }
+
+    const memberCheck = await User.findAll({ where: { user_id: member_ids } });
+    if (memberCheck.length !== member_ids.length) {
+      return res.status(400).json({ message: "One or more member_ids are invalid" });
+    }
+    
+      
+    // Create group chat
+    const chat = await Chat.create({
+      type: "group",
+      name: group_name, 
+      image_url: group_img || null,
+      descritpion: description || null,
+      created_by: auth_user_id,
+    });
+
+    // Add members to ChatUser
+    const chatUsers = member_ids.map((user_id) => ({
+      chat_id: chat.id,
+      user_id,
+      role: "group_member",
+    }));
+    await ChatUser.bulkCreate(chatUsers);
+
+    //add the auth user as admin
+    const authUser = await ChatUser.create({
+      chat_id: chat.id,
+      user_id: auth_user_id,
+      role: "group_admin",
+      group_admin: true,
+    });
+
+    return res.status(201).json({
+      success: true,
+      chat_id: chat.id,
+      message: "Group chat created successfully",
+    });
+
+  }
+  catch(err){
+    console.error("createGroupChat error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+//Fetch Messages for Group Chat
+export const getGroupMessages = async (req, res) => {
+  try{
+    const {chatId} = req.query;
+
+    if(!chatId){
+      return res.status(400).json({ message: "chatId is required" });
+    }
+
+    const message_text = await ChatMessage.findAll({
+      where: { chat_id: chatId },
+      attributes: ["user_id", "message_text", "file_url","file_type","created_at","chat_id"],
+      order: [["created_at", "ASC"]],
+    });
+    
+    return res.status(200).json({
+      success: true,
+      message_text 
+    });
+  }
+  catch(err){
+    console.error("getGroupMessages error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+//send message to Group Chat 
+export const sendGroupMessage = async (req, res) => {
+  try{
+    const { chat_id, user_id, message_text,file_url,file_type } = req.body;
+   
+    if (!chat_id || !user_id || !message_text) {
+      return res.status(400).json({
+        message: "chat_id, user_id and message_text are required",
+      });
+    }
+
+    if(chat_id<=0){
+      return res.status(400).json({ message: "Invalid chat_id" });
+    }
+
+    if(chat_id){
+      const chat = await Chat.findByPk(chat_id);
+      if(!chat || chat.type!=="group"){
+        return res.status(404).json({ message: "Group chat not found" });
+      }
+    }
+
+    const sendMessage = await ChatMessage.create({
+      chat_id,
+      user_id,
+      message_text,
+      file_url: file_url || null,
+      file_type: file_type || null
+    })
+
+    return res.status(201).json({
+      success: true,
+      message: sendMessage
+    });
+    
+   
+
+  }
+  catch(err){
+    console.error("sendGroupMessage error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
 
 
 

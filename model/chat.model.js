@@ -10,6 +10,9 @@ const Chat = db.define("chat", {
     },
     type: DataTypes.STRING,
     name: DataTypes.STRING,
+    image_url: DataTypes.STRING,
+    descritpion: DataTypes.STRING,
+
     created_by: DataTypes.STRING
 }, {
     tableName: "sharing_chats",
