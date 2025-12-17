@@ -133,6 +133,61 @@ const { sender_id, receiver_id } = req.query;
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const sidebarChatList = async (req, res) => {
+  try{
+    const { user_id } = req.query;
+    const currentUserId = req.user.user_id;
+   
+
+    if (!user_id) {
+      return res.status(400).json({ message: "user_id required" });
+    }
+    // validate receiver
+    const user = await User.findOne({ where: { user_id: user_id } });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const chats = await ChatUser.findAll({
+      where: { user_id },
+      attributes: ["chat_id"],
+      include: [
+        {
+          model: Chat,  
+          attributes: ["type" ],
+          where: { type: "private" },
+        },
+      ],
+    });
+   
+    
+
+    const chatIds = chats.map((chat) => chat.chat_id);
+//  return res.status(200).json({ chatIds });
+    const chatList = await ChatUser.findAll({
+      where: { 
+        chat_id: chatIds,
+      user_id: { [Op.ne]: currentUserId } },
+      attributes: ["chat_id", "user_id"],
+      include: [
+        { 
+          model: User,
+          attributes: ["name", "email", "profile", "phone"],
+        },
+      ],
+       
+    });
+    
+    return res.status(200).json({
+      success: true,
+      chatList,
+    });
+  }catch(err){
+    console.error("sidebarChatList error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
 //SINGLE CHAT END 
 
 //GROUP CHAT START

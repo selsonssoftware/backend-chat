@@ -34,6 +34,9 @@ app.use(cors({
 }));
 
 // routes
+app.get('/test', (req, res) => {
+  res.send('Server is running');
+});
 app.use("/auth", authroutes);
 app.use("/", userroutes);
 app.use("/chat", chatRoutes);
