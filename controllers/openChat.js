@@ -1,7 +1,7 @@
 import { Op, Sequelize } from "sequelize";
-import { Chat, ChatUser,User,ChatMessage } from "../model/index.model.js";
+import { Chat, ChatUser,User } from "../model/index.model.js";
 // import User from "../model/User.js";
-// import ChatMessage from "../model/chatMessage.js";
+import ChatMessage from "../model/chatMessage.js";
 import {getReceiverSocketId,getIo} from "../lib/socket.js";
 
 //SINGLE CHAT
@@ -163,14 +163,27 @@ export const sidebarChatList = async (req, res) => {
    
     const chatIds = chats.map((chat) => chat.chat_id);
 
-   const chatList = await Chat.findAll({
+    // const chatList = await ChatUser.findAll({
+    //   where: { 
+    //     chat_id: chatIds,
+    //   user_id: { [Op.ne]: currentUserId } },
+    //   attributes: ["chat_id", "user_id"],
+    //   include: [
+    //     { 
+    //       model: User,
+    //       attributes: ["name", "email", "profile", "phone"],
+    //     },
+    //   ],
+       
+    // });
+    const chatList = await Chat.findAll({
   where: { id: chatIds },
-  attributes: ["id", "type", "name"],
+  attributes: ["id", "type"],
   include: [
     {
       model: ChatUser,
       where: { user_id: { [Op.ne]: currentUserId } },
-      attributes: ["user_id", "role", "group_admin"],
+      attributes: ["user_id"],
       include: [
         {
           model: User,
@@ -187,7 +200,6 @@ export const sidebarChatList = async (req, res) => {
     }
   ]
 });
-    
     return res.status(200).json({
       success: true,
       chatList,
