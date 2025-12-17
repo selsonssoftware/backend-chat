@@ -408,6 +408,24 @@ export const groupsidebar = async (req, res) => {
         type: "group",
       },
       attributes: [ "name", "image_url", "descritpion"],
+      include:{
+          model:ChatMessage,
+          attributes: ["user_id", "message_text", "created_at"],
+      separate: true,
+      limit: 1,                       // last message
+      order: [["created_at", "DESC"]], // latest first
+      include:{
+        model: User,
+        attributes:["name"]
+      }
+      },
+      order: [
+  [Sequelize.literal(`(
+    SELECT MAX(created_at)
+    FROM sharing_messages
+    WHERE sharing_messages.chat_id = chat.id
+  )`), "DESC"]
+]
     });
     return res.status(200).json({
       success: true,
