@@ -57,6 +57,11 @@ export const openChat = async (req, res) => {
       file_url
     });
 
+    if (file_url ) {
+      file_url = await getPresignedUrl(file_url);
+    }
+    
+
     // socket emit
     const senderSocketId = getReceiverSocketId(sender_id);
 const receiverSocketId = getReceiverSocketId(receiver_id);
