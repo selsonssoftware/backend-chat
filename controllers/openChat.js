@@ -130,9 +130,7 @@ const { sender_id, receiver_id } = req.query;
     if (data.file_url ) {
       data.file_url = await getPresignedUrl(data.file_url);
     }
-    else{
-      data.file_url=null;
-    }
+    
     
     return data;
   })
