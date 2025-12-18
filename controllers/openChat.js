@@ -10,7 +10,7 @@ export const openChat = async (req, res) => {
     console.log("REQ BODY:", req.body);
     const { sender_id, receiver_id, message_text,file_type,file_url } = req.body;
 
-    if (!sender_id || !receiver_id || !message_text) {
+    if (!sender_id || !receiver_id ) {
       return res.status(400).json({
         message: "sender_id, receiver_id, message_text required",
       });
