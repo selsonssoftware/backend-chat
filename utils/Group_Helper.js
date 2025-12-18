@@ -20,9 +20,10 @@ const user_check = await ChatUser.findOne({
     where:{user_id,chat_id}
 
 })
+   console.log(user_check);
 if(!user_check)
 {
-    console.log("user_check");
+ 
     return { 
         group:true,
         exists:false,

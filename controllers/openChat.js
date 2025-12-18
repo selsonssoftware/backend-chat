@@ -476,6 +476,7 @@ export const groupmakeadmin = async(req,res)=>{
   }
 
   const {exists , isAdmin,group } = await check_admin(auth_id,chat_id);
+  console.log(isAdmin)
 if(!group){
    return res.status(400).json({message:"This is Private Chat"})
 }
@@ -487,7 +488,7 @@ if(!group){
   if(!isAdmin){
     return res.status(400).json({message:"only Admin Can perform"})
   }
-
+return 
 return auth_id;
   
 }

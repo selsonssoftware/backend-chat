@@ -44,7 +44,7 @@ app.use("/chat", chatRoutes);
 db2.authenticate()
   .then(() => console.log("✅ Sequelize Connected Successfully!"))
   .catch(err => console.error("❌ Sequelize connection failed:", err));
-
+ 
 // socket init
 const { server } = initSocket(app);
 
