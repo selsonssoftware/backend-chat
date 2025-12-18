@@ -1,9 +1,9 @@
 import { Op, Sequelize } from "sequelize";
 import { Chat, ChatUser,User } from "../model/index.model.js";
-// import User from "../model/User.js";
 import ChatMessage from "../model/chatMessage.js";
 import {getReceiverSocketId,getIo} from "../lib/socket.js";
-import {getPresignedUrl} from "../lib/aws.js"
+import {getPresignedUrl} from "../lib/aws.js";
+import {check_admin} from "../utils/Group_Helper.js";
 //SINGLE CHAT
 export const openChat = async (req, res) => {
   try {
@@ -467,42 +467,37 @@ export const groupsidebar = async (req, res) => {
 }
 
 //group make admin
-export const groupmakeadmin = async(res,req)=>{
+export const groupmakeadmin = async(req,res)=>{
+
   const {auth_id,user_id,chat_id}= req.body
   try {
   if (!auth_id || !user_id || !chat_id) {
     return res.status(400).json({ message: "auth_id, user_id, and chat_id are required" });
   }
 
+  const {exists , isAdmin,group } = await check_admin(auth_id,chat_id);
+if(!group){
+   return res.status(400).json({message:"This is Private Chat"})
+}
 
-  // Check if auth_user is group admin
-  const authUser = await ChatUser.findOne({
-    where: { chat_id, user_id: auth_id, role: "group_admin" }
-  });
-
-  if (!authUser) {
-    return res.status(403).json({ message: "Only group admin can make members admin" });
+  if(!exists){
+    return res.status(400).json({message:"User not in the Chat"})
   }
 
-  // Update user role to admin
-  await ChatUser.update(
-    { role: "group_admin", group_admin: true },
-    { where: { chat_id, user_id } }
-  );
+  if(!isAdmin){
+    return res.status(400).json({message:"only Admin Can perform"})
+  }
 
-  return res.status(200).json({
-    success: true,
-    message: "User promoted to group admin"
-  });
-} catch (err) {
-  console.error("groupmakeadmin error:", err);
-  res.status(500).json({ message: "Internal server error" });
-}
-}
-
- const check_admin = async(res,req)=>{
+return auth_id;
   
- }
+}
+catch(err)
+{
+  console.log("error message",err)
+  res.status(500).json({message:"Internal Server Error"})
+}
+}
+  
 
 
 
